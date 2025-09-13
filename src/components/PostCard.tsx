@@ -35,8 +35,22 @@ export default function PostCard({ posts, user, handleUpvote, hadnleDownVote, se
 
 
                             <div className="px-6 py-4 text-gray-300">
-                                <p dangerouslySetInnerHTML={{ __html: post.content }} />
+                                <p
+                                    dangerouslySetInnerHTML={{
+                                        __html: (() => {
+                                            const tempDiv = document.createElement("div");
+                                            tempDiv.innerHTML = post.content;
+                                            const textContent = tempDiv.textContent || tempDiv.innerText || "";
+                                            const words = textContent.split(/\s+/);
+                                            if (words.length > 200) {
+                                                return words.slice(0, 200).join(" ") + "...more";
+                                            }
+                                            return post.content;
+                                        })(),
+                                    }}
+                                />
                             </div>
+
 
                             <div className="flex flex-wrap gap-2 mb-3 ml-6">
                                 {post.tags.map((tag: string, idx: number) => (

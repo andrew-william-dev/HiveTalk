@@ -2,20 +2,9 @@ import axios from "axios";
 import { POST_CONTENT, GET_CONTENT } from "../constants/api/endpoints";
 
 export const createPost = async (args: any) => {
-  const formData = new FormData();
-
-
-  Object.keys(args).forEach((key) => {
-    if (key === "tags" && Array.isArray(args[key])) {
-      args[key].forEach((tag: string) => formData.append("tags", tag));
-    } else if (args[key] !== undefined && args[key] !== null) {
-      formData.append(key, args[key]);
-    }
-  });
-
   return axios.post(
     `${import.meta.env.VITE_APP_BACKEND_URL}${POST_CONTENT}`, 
-    formData,
+    args,
     {
       headers: { "Content-Type": "multipart/form-data" },
     }
