@@ -1,3 +1,8 @@
+---
+name: Feature
+about: Describe the feature you implemented
+---
+
 ## Description
 Clearly describe the new feature you have added.  
 Example: "Added user authentication using JWT" or "Implemented community creation flow."

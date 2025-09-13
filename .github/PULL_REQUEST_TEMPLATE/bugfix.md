@@ -1,3 +1,8 @@
+---
+name: Bug Fix
+about: Describe the bug you resolved
+---
+
 ## Description
 Describe the bug that was fixed.  
 Example: "Fixed crash when submitting an empty comment" or "Resolved incorrect vote count display."
