@@ -1,71 +1,113 @@
-import { useState } from "react";
-import { MessageCircle, ArrowUp, ArrowDown, Share2, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { X } from "lucide-react";
+import { downvotePost, getPosts, upvotePost } from "../queries/posts";
+import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthProvider";
+import PostCard from "../components/PostCard";
 
 function Home() {
     const [modalImage, setModalImage] = useState<string | null>(null);
+    const [posts, setPosts] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const { user } = useAuth();
 
-    const posts = Array.from({ length: 50 }, (_, i) => {
-        const isLandscape = Math.random() > 0.5;
-        const width = isLandscape ? 1920 : 720;
-        const height = isLandscape ? 1080 : 1080;
-        const image = Math.random() > 0.5 
-            ? `https://picsum.photos/${width}/${height}?random=${i + 1}` 
-            : null;
+    const fetchPosts = async () => {
+        try {
+            const { data } = await getPosts();
+            setPosts(data); // assuming BE returns array of posts
+        } catch (err) {
+            console.error("Error fetching posts", err);
+            toast.error("Failed to load posts");
+        } finally {
+            setLoading(false);
+        }
+    };
+    useEffect(() => {
+        fetchPosts();
+    }, []);
 
-        return {
-            id: i + 1,
-            title: `Post Title #${i + 1}`,
-            content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Post number ${i + 1} content continues...`,
-            author: `User${i + 1}`,
-            votes: Math.floor(Math.random() * 500),
-            comments: Math.floor(Math.random() * 100),
-            image,
-        };
-    });
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-full text-white">
+                Loading posts...
+            </div>
+        );
+    }
+
+    const handleUpvote = async (id: string) => {
+        try {
+            await upvotePost(id, user?.username!);
+
+            setPosts((prevPosts) =>
+                prevPosts.map((post) => {
+                    if (post._id === id) {
+                        const alreadyUpvoted = post.upvotes?.includes(user?.username);
+                        // const alreadyDownvoted = post.downvotes?.includes(user?.username);
+
+                        let newUpvotes = post.upvotes || [];
+                        let newDownvotes = post.downvotes || [];
+
+                        if (alreadyUpvoted) {
+                            newUpvotes = newUpvotes.filter((u: string) => u !== user?.username);
+                        } else {
+                            newUpvotes = [...newUpvotes, user?.username];
+                            newDownvotes = newDownvotes.filter((u: string) => u !== user?.username);
+                        }
+
+                        return {
+                            ...post,
+                            upvotes: newUpvotes,
+                            downvotes: newDownvotes,
+                        };
+                    }
+                    return post;
+                })
+            );
+        } catch (err) {
+            console.error("Error upvoting", err);
+            toast.error("Failed to upvote");
+        }
+    };
+
+    const hadnleDownVote = async (id: string) => {
+        try {
+            await downvotePost(id, user?.username!);
+
+            setPosts((prevPosts) =>
+                prevPosts.map((post) => {
+                    if (post._id === id) {
+                        // const alreadyUpvoted = post.upvotes?.includes(user?.username);
+                        const alreadyDownvoted = post.downvotes?.includes(user?.username);
+
+                        let newUpvotes = post.upvotes || [];
+                        let newDownvotes = post.downvotes || [];
+
+                        if (alreadyDownvoted) {
+                            newDownvotes = newDownvotes.filter((u: string) => u !== user?.username);
+                        } else {
+                            newDownvotes = [...newDownvotes, user?.username];
+                            newUpvotes = newUpvotes.filter((u: string) => u !== user?.username);
+                        }
+
+                        return {
+                            ...post,
+                            upvotes: newUpvotes,
+                            downvotes: newDownvotes,
+                        };
+                    }
+                    return post;
+                })
+            );
+        } catch (err) {
+            console.error("Error upvoting", err);
+            toast.error("Failed to upvote");
+        }
+    };
+
 
     return (
         <div className="flex flex-col gap-6 items-center mt-6 relative">
-            {posts.map((post) => (
-                <div
-                    key={post.id}
-                    className="bg-gray-800 w-[700px] rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 border border-gray-700 flex"
-                >
-                    <div className="flex flex-col items-center justify-start bg-gray-900 rounded-l-xl px-3 py-4 text-gray-400 gap-2">
-                        <ArrowUp className="cursor-pointer hover:text-amber-400 transition" />
-                        <span className="font-semibold text-white">{post.votes}</span>
-                        <ArrowDown className="cursor-pointer hover:text-amber-400 transition" />
-                    </div>
-
-                    <div className="flex-1 flex flex-col">
-                        <div className="px-6 py-4 border-b border-gray-700 flex justify-between items-center">
-                            <h2 className="text-xl font-bold text-amber-400">{post.title}</h2>
-                            <span className="text-sm text-gray-400">By {post.author}</span>
-                        </div>
-
-                        {post.image && (
-                            <img
-                                src={post.image}
-                                alt="Post"
-                                className="w-full h-64 object-cover transition-all duration-300 hover:opacity-50 cursor-pointer"
-                                onClick={() => setModalImage(post.image)}
-                            />
-                        )}
-
-                        <div className="px-6 py-4 text-gray-300">
-                            <p>{post.content}</p>
-                        </div>
-
-                        <div className="px-6 py-3 border-t border-gray-700 text-sm text-gray-400 flex gap-6">
-                            <span className="flex items-center gap-1 cursor-pointer hover:text-amber-400">
-                                <MessageCircle /> {post.comments}
-                            </span>
-                            <span className="flex items-center gap-1 cursor-pointer hover:text-amber-400">
-                                <Share2 /> Share
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            ))}
+            <PostCard posts={posts} user={user} handleUpvote={handleUpvote} hadnleDownVote={hadnleDownVote} setModalImage={setModalImage} />
 
             {modalImage && (
                 <div
@@ -90,7 +132,6 @@ function Home() {
                     </div>
                 </div>
             )}
-
         </div>
     );
 }

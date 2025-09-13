@@ -1,0 +1,6 @@
+export const AUTH_LOGIN = '/auth/login'
+export const AUTH_SIGNUP = '/auth/signup'
+export const UPDATE_PROFILE = '/user/update'
+export const GET_PROFILE = '/user'
+export const POST_CONTENT = '/posts/upload'
+export const GET_CONTENT = '/posts'
