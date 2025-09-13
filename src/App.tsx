@@ -1,14 +1,12 @@
-import './App.css'
+import { BrowserRouter as Router } from "react-router-dom";
+import { PageRoutes } from "./routes/routes";
 
 function App() {
-
   return (
-    <>
-      <h1 className='text-2xl text-sky-500'>
-        Hi
-      </h1>
-    </>
-  )
+    <Router>
+      <PageRoutes/>
+    </Router>
+  );
 }
 
-export default App
+export default App;
