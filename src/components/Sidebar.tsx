@@ -1,29 +1,31 @@
 import { Home, Users, ChevronDown, ChevronUp, ChartColumn, ClockFading } from "lucide-react";
 import { useState, type JSX } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function SideBar() {
   const generalItems = [
-    { label: "Home", icon: <Home /> },
-    { label: "Popular", icon: <ChartColumn /> },
+    { label: "Home", icon: <Home />, url:'/home'},
+    { label: "Popular", icon: <ChartColumn /> , url:'/'},
   ];
 
   const recentItems = [
-    { label: "HiveTalk News", icon: <ClockFading /> },
-    { label: "Trending", icon: <ClockFading /> },
+    { label: "HiveTalk News", icon: <ClockFading /> , url:'/'},
+    { label: "Trending", icon: <ClockFading /> , url:'/'},
   ];
 
   const communityItems = [
-    { label: "Tech Talk", icon: <Users /> },
-    { label: "Gaming", icon: <Users /> },
-    { label: "Music", icon: <Users /> },
+    { label: "Tech Talk", icon: <Users /> , url:'/'},
+    { label: "Gaming", icon: <Users /> , url:'/'},
+    { label: "Music", icon: <Users /> , url:'/'},
   ];
 
   const [generalOpen, setGeneralOpen] = useState(true);
   const [recentOpen, setRecentOpen] = useState(true);
   const [communityOpen, setCommunityOpen] = useState(true);
+  const navigate = useNavigate()
 
-  const SidebarItem = ({ icon, label }: { icon: JSX.Element; label: string }) => (
-    <li className="flex items-center gap-3 px-4 py-2 cursor-pointer hover:bg-gray-700 rounded-md transition-colors duration-200">
+  const SidebarItem = ({ icon, label, url }: { icon: JSX.Element; label: string, url: string }) => (
+    <li className="flex items-center gap-3 px-4 py-2 cursor-pointer hover:bg-gray-700 rounded-md transition-colors duration-200" onClick={() => navigate(url)}>
       {icon}
       <span>{label}</span>
     </li>
@@ -36,7 +38,7 @@ export default function SideBar() {
     setIsOpen,
   }: {
     title: string;
-    items: { label: string; icon: JSX.Element }[];
+    items: { label: string; icon: JSX.Element, url: string }[];
     isOpen: boolean;
     setIsOpen: (val: boolean) => void;
   }) => (
@@ -51,7 +53,7 @@ export default function SideBar() {
       {isOpen && (
         <ul className="mt-2 flex flex-col gap-1">
           {items.map((item) => (
-            <SidebarItem key={item.label} icon={item.icon} label={item.label} />
+            <SidebarItem key={item.label} icon={item.icon} label={item.label} url={item.url} />
           ))}
         </ul>
       )}
